@@ -1,0 +1,59 @@
+OSEK OSEK {
+
+   OS	ExampleOS {
+      STATUS = EXTENDED;
+      ERRORHOOK = FALSE;
+      PRETASKHOOK = FALSE;
+      POSTTASKHOOK = FALSE;
+      STARTUPHOOK = FALSE;
+      SHUTDOWNHOOK = FALSE;
+      USERESSCHEDULER = FALSE;
+      MEMMAP = FALSE;
+   };
+
+   APPMODE = AppMode1;
+   EVENT = POSIXE;
+   RESOURCE = POSIXR;
+   
+   TASK InitTask{
+      PRIORITY = 5;
+      ACTIVATION = 1;
+      AUTOSTART = TRUE {
+         APPMODE = AppMode1;
+      }
+	  STACK = 512;
+	  TYPE = BASIC;
+	  SCHEDULE = NON;
+   };
+	
+   TASK TareaA {
+      PRIORITY = 1;
+      ACTIVATION = 1; /*La tarea no es autostart, porque la voy a arrancar del inittask*/
+      
+      STACK = 512;
+	   TYPE = EXTENDED;
+	   EVENT = POSIXE;
+	   RESOURCE = POSIXR;
+	   SCHEDULE = FULL;
+   };
+	
+	ALARM ActivarTareaA {
+      COUNTER = HardwareCounter;
+      ACTION = ACTIVATETASK {
+        TASK = TareaA;
+      }
+      AUTOSTART = TRUE {
+         APPMODE = AppMode1;
+         ALARMTIME = 500;
+         CYCLETIME = 1000;
+      };
+   }; 
+   
+   COUNTER HardwareCounter {
+      MAXALLOWEDVALUE = 1000; /*Máximo valor del contador asociado a la alarma*/
+      TICKSPERBASE = 1;       /*prescaler (No implementado aun)*/
+      MINCYCLE = 1;           /* Minimo valor que puede usar un contador*/
+      TYPE = HARDWARE;        /* Al menos un Hardware counter por proyecto*/
+      COUNTER = HWCOUNTER0; /* mandatorio  OSEK says */
+   };
+};
